@@ -44,6 +44,17 @@
         #download-button:hover {
             background-color: #0056b3;
         }
+        /* Style for the last update time */
+        #last-update {
+            position: absolute;
+            top: 10px;
+            right: 60px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            /* Adjust the left margin for "Last Update:" */
+            margin-left: 50px;
+        }
     </style>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
@@ -60,6 +71,9 @@
         Download Images ZIP
     </a>
 
+    <!-- Display the last update time -->
+    <div id="last-update">Last Update: <time>Loading...</time></div>
+
     <script>
         // Create a map with Leaflet and set a higher maximum zoom level
         var map = L.map('map', {
@@ -74,25 +88,42 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Variable to store the last update time
+        var lastUpdateTimeElement = document.querySelector('#last-update time');
+
         // Function to create markers based on CSV data
         function createMarkers(data) {
+            // Initialize a variable to store the last update time
+            var lastUpdateTime = '';
+
             data.forEach(function (row) {
                 var lat = parseFloat(row[3]);
                 var lon = parseFloat(row[4]);
                 var image_path = row[5];
 
-                // Create a custom HTML popup with a larger image
-                var popupContent = `
-                    <img src="${image_path}" width="300px" style="max-height:300px;">
-                    <p>Object ID: ${row[0]}</p>
-                    <p>Class: ${row[2]}</p>
-                    <p>Confidence: ${row[6]}</p>
-                `;
+                // Check if lat and lon are valid numbers
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    // Create a custom HTML popup with a larger image
+                    var popupContent = `
+                        <img src="${image_path}" width="300px" style="max-height:300px;">
+                        <p>Object ID: ${row[0]}</p>
+                        <p>Class: ${row[2]}</p>
+                        <p>Confidence: ${row[6]}</p>
+                    `;
 
-                // Add markers to the map
-                var marker = L.marker([lat, lon]).addTo(map);
-                marker.bindPopup(popupContent);
+                    // Add markers to the map
+                    var marker = L.marker([lat, lon]).addTo(map);
+                    marker.bindPopup(popupContent);
+
+                    // Update the last update time for each valid row
+                    lastUpdateTime = row[1]; // Assuming the time is in column 1
+                } else {
+                    console.error('Invalid latitude or longitude:', lat, lon);
+                }
             });
+
+            // Update the last update time in the HTML
+            lastUpdateTimeElement.textContent = lastUpdateTime;
         }
 
         // Fetch CSV data and create markers when the page loads
