@@ -31,29 +31,33 @@
             flex-grow: 1;
             height: 500px; /* Set a fixed height for the map container */
         }
-        #download-button {
+        .download-buttons {
             align-self: flex-end;
             margin: 20px;
+            display: flex;
+            gap: 10px; /* Add some spacing between buttons */
+        }
+        .download-button {
             padding: 15px 30px;
             background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 10px;
             cursor: pointer;
+            text-decoration: none;
+            text-align: center;
         }
-        #download-button:hover {
+        .download-button:hover {
             background-color: #0056b3;
         }
         /* Style for the last update time */
         #last-update {
             position: absolute;
             top: 25px;
-            right: 1300px;
+            right: 1290px; /* Adjust the right position */
             background-color: rgba(255, 255, 255, 0.8);
             padding: 5px 10px;
             border-radius: 5px;
-            /* Adjust the left margin for "Last Update:" */
-            margin-left: 50px;
         }
     </style>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -66,10 +70,16 @@
     <!-- Create a div for the map -->
     <div id="map"></div>
 
-    <!-- Add a button to download captured_images as a ZIP file -->
-    <a href="https://github.com/ama-cclipa/ama-pddetection/archive/refs/heads/main.zip" download id="download-button">
-        Download Images ZIP
-    </a>
+    <!-- Buttons to download the "capture_images" folder and "object_records.csv" file -->
+    <div class="download-buttons">
+        <a href="https://github.com/ama-cclipa/ama-pddetection/raw/main/capture_images.zip" download class="download-button">
+            Download Images ZIP
+        </a>
+
+        <a href="https://github.com/ama-cclipa/ama-pddetection/raw/main/object_records.csv" download class="download-button">
+            Download CSV
+        </a>
+    </div>
 
     <!-- Display the last update time -->
     <div id="last-update">Last Update: <time>Loading...</time></div>
