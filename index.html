@@ -29,6 +29,7 @@
         }
         #map {
             flex-grow: 1;
+            height: 500px; /* Set a fixed height for the map container */
         }
         #download-button {
             align-self: flex-end;
@@ -53,24 +54,28 @@
     
     <!-- Create a div for the map -->
     <div id="map"></div>
-    
+
     <!-- Add a button to download captured_images as a ZIP file -->
-    <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/archive/refs/heads/main.zip" download id="download-button">
+    <a href="https://github.com/ama-cclipa/ama-pddetection/archive/refs/heads/main.zip" download id="download-button">
         Download Images ZIP
     </a>
 
     <script>
+        // Create a map with Leaflet and set a higher maximum zoom level
+        var map = L.map('map', {
+            center: [13.9408, 121.1623], // Initial coordinates
+            zoom: 15, // Initial zoom level
+            maxZoom: 18, // Set a higher maximum zoom level
+            scrollWheelZoom: true // Enable scroll wheel zoom
+        });
+
+        // Add OpenStreetMap as the base map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
         // Function to create markers based on CSV data
         function createMarkers(data) {
-            var mapCenter = [parseFloat(data[0][3]), parseFloat(data[0][4])];
-            var map = L.map('map').setView(mapCenter, 12);
-
-            // Add OpenStreetMap as the base map
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Create markers based on CSV data
             data.forEach(function (row) {
                 var lat = parseFloat(row[3]);
                 var lon = parseFloat(row[4]);
@@ -91,16 +96,21 @@
         }
 
         // Fetch CSV data and create markers when the page loads
-        fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/object_records.csv')
+        fetch('https://raw.githubusercontent.com/ama-cclipa/ama-pddetection/main/object_records.csv')
             .then(response => response.text())
             .then(data => {
                 // Parse CSV data into a 2D array
                 var csvData = data.split('\n').map(function (row) {
                     return row.split(',');
                 });
+
                 // Remove the header row
                 csvData.shift();
-                createMarkers(csvData);
+
+                // Check if there is no data (CSV not found)
+                if (csvData.length > 0) {
+                    createMarkers(csvData);
+                }
             })
             .catch(error => {
                 console.error('Error fetching CSV data:', error);
