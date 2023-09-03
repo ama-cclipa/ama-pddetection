@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection Map</title>
+    <!-- Include Leaflet.js and CSS for the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Object Detection Map</h1>
+    
+    <!-- Create a div for the map -->
+    <div id="map" style="height: 500px;"></div>
+    
+    <!-- Add a button to download captured_images as a ZIP file -->
+    <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/archive/refs/heads/main.zip" download>
+        <button>Download captured_images ZIP</button>
+    </a>
+
+    <script>
+        // Function to create markers based on CSV data
+        function createMarkers(data) {
+            var mapCenter = [parseFloat(data[0][3]), parseFloat(data[0][4])];
+            var map = L.map('map').setView(mapCenter, 12);
+
+            // Add OpenStreetMap as the base map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Create markers based on CSV data
+            data.forEach(function (row) {
+                var lat = parseFloat(row[3]);
+                var lon = parseFloat(row[4]);
+                var image_path = row[5];
+
+                // Create a custom HTML popup with a larger image
+                var popupContent = `
+                    <img src="${image_path}" width="300px" style="max-height:300px;">
+                    <p>Object ID: ${row[0]}</p>
+                    <p>Class: ${row[2]}</p>
+                    <p>Confidence: ${row[6]}</p>
+                `;
+
+                // Add markers to the map
+                var marker = L.marker([lat, lon]).addTo(map);
+                marker.bindPopup(popupContent);
+            });
+        }
+
+        // Fetch CSV data and create markers when the page loads
+        fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/object_records.csv')
+            .then(response => response.text())
+            .then(data => {
+                // Parse CSV data into a 2D array
+                var csvData = data.split('\n').map(function (row) {
+                    return row.split(',');
+                });
+                // Remove the header row
+                csvData.shift();
+                createMarkers(csvData);
+            })
+            .catch(error => {
+                console.error('Error fetching CSV data:', error);
+            });
+    </script>
+</body>
+</html>
